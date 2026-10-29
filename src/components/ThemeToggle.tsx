@@ -28,8 +28,8 @@ export function ThemeToggle() {
       className="btn-glass flex h-9 items-center gap-1.5 rounded-full px-3 text-[12px]"
       style={{ color: 'var(--text-dim)' }}
     >
-      {theme === 'dark' ? <Moon size={14} /> : <Sun size={14} />}
-      <span>{theme === 'dark' ? '暗色' : '亮色'}</span>
+      {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+      <span>{theme === 'dark' ? '亮色' : '暗色'}</span>
     </button>
   )
 }
