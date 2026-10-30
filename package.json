@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "lucide-react": "*",
-    "motion": "*",
+    "off": "^0.0.10",
     "react": "*",
     "react-dom": "*"
   },

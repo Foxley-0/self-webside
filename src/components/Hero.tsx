@@ -1,73 +1,91 @@
-import { motion } from 'motion/react'
-import { Moon, Sun, Sunrise, Sunset, type LucideIcon } from 'lucide-react'
-import { site } from '../data/links'
-import { ThemeToggle, useClock } from './ThemeToggle'
+import { useEffect } from 'react'
+import type { CSSProperties, MouseEvent } from 'react'
+import { ArrowDown, ArrowUpRight } from 'lucide-react'
+import { profile } from '../data/profile'
 
-function greetingFor(hour: number): { text: string; Icon: LucideIcon } {
-  if (hour < 5) return { text: '夜深了', Icon: Moon }
-  if (hour < 9) return { text: '早上好', Icon: Sunrise }
-  if (hour < 12) return { text: '上午好', Icon: Sun }
-  if (hour < 14) return { text: '中午好', Icon: Sun }
-  if (hour < 18) return { text: '下午好', Icon: Sun }
-  if (hour < 23) return { text: '晚上好', Icon: Sunset }
-  return { text: '夜深了', Icon: Moon }
+/** 头像点击回顶部。smooth 由 CSS 的 scroll-behavior 决定，reduced-motion 下自动变 auto */
+function backToTop(e: MouseEvent<HTMLAnchorElement>) {
+  e.preventDefault()
+  window.scrollTo(0, 0)
 }
 
 export function Hero() {
-  const time = useClock()
-  const { text: greeting, Icon } = greetingFor(new Date().getHours())
+  const chars = [...profile.title]
+
+  /** 把滚动进度写进 --nav-progress，导航黑色层跟着连续加深，而不是到某个阈值突然变黑 */
+  useEffect(() => {
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      const p = max > 0 ? Math.min(1, window.scrollY / max) : 0
+      document.documentElement.style.setProperty('--nav-progress', p.toFixed(3))
+    }
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [])
 
   return (
-    <header className="mb-12 md:mb-16">
-      <div className="flex items-center justify-between">
-        <div
-          className="flex items-center gap-2 text-[12px] tabular-nums"
-          style={{ color: 'var(--text-faint)' }}
-        >
-          <span className="pulse-dot" />
-          <span>{time}</span>
-          <span aria-hidden="true" style={{ opacity: 0.5 }}>
-            ·
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Icon size={12} strokeWidth={1.75} />
-            {greeting}，欢迎回来
-          </span>
+    <header className="hero" id="top">
+      <nav className="topbar anim-fade" style={{ animationDelay: '150ms' }}>
+        <a className="brand" href="#top" onClick={backToTop} aria-label="回到顶部">
+          <img className="avatar" src={profile.avatar} alt="" width={34} height={34} />
+          <span className="brand-name">{profile.name}</span>
+        </a>
+
+        <div className="topnav">
+          {profile.nav.map((item) => (
+            <a
+              key={item.label}
+              className={`topnav-link${item.emphasis ? ' is-emphasis' : ''}`}
+              href={item.href}
+              {...(item.external
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
+            >
+              {item.label}
+              {!item.emphasis && (
+                <ArrowUpRight size={13} strokeWidth={1.6} className="topnav-arrow" />
+              )}
+            </a>
+          ))}
         </div>
-        <ThemeToggle />
+      </nav>
+
+      <div className="headline">
+        <h1 className="headline-title" aria-label={profile.title}>
+          {chars.map((char, i) => (
+            <span
+              key={`${char}-${i}`}
+              aria-hidden="true"
+              style={{ '--i': i } as CSSProperties}
+            >
+              {char}
+            </span>
+          ))}
+        </h1>
+
+        <span className="rule" />
+
+        <p className="note anim-fade-up" style={{ animationDelay: '900ms' }}>
+          <span className="note-mark">~</span>
+          {profile.note}
+        </p>
       </div>
 
-      <div className="mt-14 flex flex-col items-start gap-5 md:mt-20 md:gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="art-glass"
-        >
-          <span className="art-text art-en">
-            Welcome to Foxley&apos;s website.
-          </span>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-          className="art-glass"
-        >
-          <span className="art-text art-cn">万事胜意</span>
-        </motion.div>
-      </div>
-
-      <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.26, ease: [0.16, 1, 0.3, 1] }}
-        className="mt-8 text-[14px] md:mt-9 md:text-[15px]"
-        style={{ color: 'var(--text-dim)' }}
+      <a
+        className="scroll-hint anim-fade"
+        href="#footer"
+        aria-label="向下滚动"
+        style={{ animationDelay: '1200ms' }}
       >
-        {site.tagline}
-      </motion.p>
+        <span className="hint-bob">
+          <ArrowDown size={20} strokeWidth={1.2} />
+        </span>
+      </a>
     </header>
   )
 }
