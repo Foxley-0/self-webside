@@ -1,22 +1,30 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="dark">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>主站 · Foxley</title>
-    <meta name="description" content="Welcome to Foxley's website." />
-    <script>
-      (function () {
-        try {
-          var t = localStorage.getItem('theme');
-          if (t !== 'light' && t !== 'dark') t = 'dark';
-          document.documentElement.dataset.theme = t;
-        } catch (e) {
-          document.documentElement.dataset.theme = 'dark';
-        }
-      })();
-    </script>
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    <title>Foxley | 高山仰止</title>
+    <meta name="description" content="Foxley 的个人主页。" />
+    <meta name="theme-color" content="#12161c" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Foxley" />
+    <meta property="og:description" content="Foxley 的个人主页。" />
+    <meta property="og:image" content="/img/hero-desktop.webp" />
+
+    <!-- 首屏图预加载：别等 CSS 解析完才开始下载 -->
+    <link
+      rel="preload"
+      as="image"
+      href="/img/hero-desktop.webp"
+      imagesrcset="/img/hero-mobile.webp 1080w, /img/hero-desktop.webp 1920w"
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
+
   </head>
   <body>
     <div id="root"></div>

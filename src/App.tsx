@@ -1,28 +1,33 @@
-import { Background } from './components/Background'
+import { useEffect } from 'react'
+import { Backdrop } from './components/Backdrop'
 import { Hero } from './components/Hero'
-import { GlassCard } from './components/GlassCard'
-import { links, site } from './data/links'
+import { Footer } from './components/Footer'
 
 export default function App() {
+  /**
+   * 用 JS 读真实视口高度写进 --vh。
+   * CSS 的 100vh 在浏览器 UI 变化 / 页面缩放时会算偏（实测差过 25px），
+   * window.innerHeight 永远准。
+   */
+  useEffect(() => {
+    const setVh = () => {
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight}px`)
+    }
+    setVh()
+    window.addEventListener('resize', setVh)
+    window.addEventListener('orientationchange', setVh)
+    return () => {
+      window.removeEventListener('resize', setVh)
+      window.removeEventListener('orientationchange', setVh)
+    }
+  }, [])
+
   return (
     <>
-      <Background />
-      <main className="mx-auto w-full max-w-[1180px] px-5 pt-10 pb-20 md:px-8 md:pt-16 2xl:max-w-[1440px] 3xl:max-w-[1680px] [container-type:inline-size]">
+      <Backdrop />
+      <main>
         <Hero />
-
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-4">
-          {links.map((item, index) => (
-            <GlassCard key={item.id} item={item} index={index} />
-          ))}
-        </section>
-
-        <footer
-          className="mt-16 flex items-center justify-between text-[12px]"
-          style={{ color: 'var(--text-faint)' }}
-        >
-          <span>{site.footer}</span>
-          <span className="tabular-nums">{links.length} 个入口</span>
-        </footer>
+        <Footer />
       </main>
     </>
   )

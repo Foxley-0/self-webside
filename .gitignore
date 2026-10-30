@@ -22,3 +22,6 @@ npm-debug.log*
 # 系统
 .DS_Store
 Thumbs.db
+
+# 本地项目数据（含服务器信息，不公开）
+.workbuddy-ai/

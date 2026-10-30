@@ -5,8 +5,6 @@ const EDGE = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 const PORT = 9333
 const URL = process.argv[2] || 'http://127.0.0.1:5173/'
 const OUT = process.argv[3] || 'shots'
-const W = Number(process.argv[4] || 1440)
-const H = Number(process.argv[5] || 900)
 const USER_DIR = 'C:/Users/c4444/AppData/Local/Temp/edge-shot-profile'
 
 fs.mkdirSync(OUT, { recursive: true })
@@ -19,9 +17,6 @@ const edge = spawn(
     `--user-data-dir=${USER_DIR}`,
     '--no-first-run',
     '--no-default-browser-check',
-    '--proxy-server=http://127.0.0.1:7897',
-    '--enable-unsafe-swiftshader',
-    '--use-angle=swiftshader',
     '--hide-scrollbars',
     '--disable-extensions',
     'about:blank',
@@ -73,53 +68,69 @@ await send('Page.enable')
 await send('Runtime.enable')
 await send('Network.enable')
 await send('Network.setCacheDisabled', { cacheDisabled: true })
-await send('Emulation.setDeviceMetricsOverride', {
-  width: W,
-  height: H,
-  deviceScaleFactor: 1,
-  mobile: false,
-})
 
-await send('Page.navigate', { url: URL })
-await sleep(9000)
-await send('Runtime.evaluate', {
-  expression: `try{localStorage.clear()}catch(e){}; document.documentElement.dataset.theme='dark';`,
-})
-await sleep(1200)
-
-async function capture(name) {
-  const metrics = await send('Page.getLayoutMetrics')
-  const size = metrics.cssContentSize || metrics.contentSize
-  const width = Math.ceil(size.width)
-  const height = Math.ceil(size.height)
-  const { data } = await send('Page.captureScreenshot', {
-    format: 'png',
-    captureBeyondViewport: true,
-    clip: { x: 0, y: 0, width, height, scale: 1 },
-  })
+async function shot(name) {
+  const { data } = await send('Page.captureScreenshot', { format: 'png' })
   fs.writeFileSync(`${OUT}/${name}.png`, Buffer.from(data, 'base64'))
-  console.log(`saved ${name}.png  ${width}x${height}`)
+  console.log(`saved ${name}.png`)
 }
 
-await capture('desktop-dark')
+async function setTheme(theme) {
+  await send('Runtime.evaluate', {
+    expression: `document.documentElement.dataset.theme='${theme}'`,
+  })
+  await sleep(800)
+}
 
-await send('Runtime.evaluate', {
-  expression: `document.documentElement.dataset.theme='light'`,
-})
-await sleep(900)
-await capture('desktop-light')
+async function open(w, h, mobile = false) {
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: w,
+    height: h,
+    deviceScaleFactor: 1,
+    mobile,
+  })
+  await send('Page.navigate', { url: URL })
+  await sleep(3200)
+}
 
-await send('Runtime.evaluate', {
-  expression: `document.documentElement.dataset.theme='dark'`,
-})
-await send('Emulation.setDeviceMetricsOverride', {
-  width: 390,
-  height: 844,
-  deviceScaleFactor: 2,
-  mobile: true,
-})
-await sleep(900)
-await capture('mobile-dark')
+async function toTop() {
+  await send('Runtime.evaluate', { expression: 'window.scrollTo(0,0)' })
+  await sleep(700)
+}
+
+async function toBottom() {
+  await send('Runtime.evaluate', {
+    expression: 'window.scrollTo(0, document.body.scrollHeight)',
+  })
+  await sleep(700)
+}
+
+// ---------- 1920 暗色 ----------
+await open(1920, 1080)
+await setTheme('dark')
+await shot('fhd-hero-dark')
+await toBottom()
+await shot('fhd-footer-dark')
+
+// ---------- 1920 亮色 ----------
+await setTheme('light')
+await toTop()
+await shot('fhd-hero-light')
+await toBottom()
+await shot('fhd-footer-light')
+
+// ---------- 1080 横屏 ----------
+await open(1080, 585)
+await setTheme('dark')
+await toBottom()
+await shot('landscape-footer-dark')
+
+// ---------- 390 移动端 ----------
+await open(390, 844, true)
+await setTheme('dark')
+await shot('mobile-hero-dark')
+await toBottom()
+await shot('mobile-footer-dark')
 
 ws.close()
 edge.kill()
