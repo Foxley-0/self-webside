@@ -24,10 +24,19 @@ jobs:
       - name: Build
         run: npm run build
 
+      # 构建"成功"但产物缺失时，rsync --delete 会清空服务器目录。
+      # 这一步是最后一道保险。
+      - name: Verify build output
+        run: |
+          test -f dist/index.html || { echo "::error::dist/index.html 缺失，终止部署"; exit 1; }
+          test -d dist/assets || { echo "::error::dist/assets 缺失，终止部署"; exit 1; }
+          echo "产物大小：$(du -sh dist | cut -f1)"
+
       - name: Push dist to server
         uses: burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avzr --delete
+          # .well-known 是 Let's Encrypt 验证目录，不能被 --delete 清掉
+          switches: -avzr --delete --exclude=.well-known --exclude=.user.ini
           path: dist/
           remote_path: ${{ secrets.DEPLOY_PATH }}
           remote_host: ${{ secrets.SSH_HOST }}
