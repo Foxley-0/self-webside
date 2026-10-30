@@ -70,7 +70,7 @@ export const links: LinkItem[] = [
   {
     id: 'homepage',
     name: 'Foxley',
-    desc: '关于我、作品与随笔',
+    desc: '关于我',
     url: 'https://foxley.289025.xyz',
     icon: 'user',
     size: 'wide',
@@ -83,8 +83,8 @@ export const links: LinkItem[] = [
     ],
   },
   {
-    id: 'asktbot',
-    name: 'AsktBot',
+    id: 'astrbot',
+    name: 'AstrBot',
     desc: 'Bot 管理面板',
     url: 'https://bot-panel-b.289025.xyz/',
     icon: 'terminal',
