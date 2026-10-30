@@ -32,7 +32,7 @@ export const profile = {
     { label: 'GitHub', href: 'https://github.com/Foxley-0', external: true },
     {
       label: '后台',
-      href: 'https://admin.289025.xyz',
+      href: 'https://redirect.289025.xyz/',
       external: true,
       emphasis: true,
     },
@@ -45,7 +45,7 @@ export const profile = {
       links: [
         { label: '主页', href: '#top' },
         { label: 'GitHub', href: 'https://github.com/Foxley-0', external: true },
-        { label: '后台', href: 'https://admin.289025.xyz', external: true },
+        { label: '后台', href: 'https://redirect.289025.xyz/', external: true },
       ],
     },
     {
